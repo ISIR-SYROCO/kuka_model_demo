@@ -1,13 +1,13 @@
-// Filename:  kukaSimpleDemo-rtnetcomponent.hpp
+// Filename:  kukaModelDemo-rtnetcomponent.hpp
 // Copyright: 2014 ISIR-CNRS
 // Author:  Sovan Hak, Guillaume Hamon (hak@isir.upmc.fr, hamon@isir.upmc.fr) 
-// Description: Orocos component to command the kuka using simple controllers
+// Description: 
 
-#ifndef KUKA_SIMPLE_DEMO_RTNET_COMPONENT_HPP
-#define KUKA_SIMPLE_DEMO_RTNET_COMPONENT_HPP
+#ifndef KUKA_MODEL_DEMO_RTNET_COMPONENT_HPP
+#define KUKA_MODEL_DEMO_RTNET_COMPONENT_HPP
 
 #include <friRTNetExampleAbstract.hpp>
-#include "kukafixed.hpp"
+#include "kukafixed.h"
 #include <Eigen/Dense>
 
 #include <orc/control/Feature.h>

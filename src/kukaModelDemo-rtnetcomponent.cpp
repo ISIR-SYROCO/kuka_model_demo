@@ -8,6 +8,7 @@
 #include <iostream>
 
 KukaModelDemoRTNET::KukaModelDemoRTNET(std::string const& name) : FriRTNetExampleAbstract(name){
+    model = new kukafixed("kuka");
 }
 
 void KukaModelDemoRTNET::updateHook(){
@@ -30,16 +31,36 @@ void KukaModelDemoRTNET::updateHook(){
         
         for(unsigned int i = 0; i < LWRDOF; i++){
             joint_pos[i] = JState[i];
-            //joint_position_command[i] = JState[i];
         }
+        model->setJointPositions(joint_pos);
         
     }
     
     if(joint_vel_fs == RTT::NewData){
-        Eigen::VectorXd joint_vel(7);
+        Eigen::VectorXd joint_vel(LWRDOF);
         for(unsigned int i = 0; i < LWRDOF; i++){
             joint_vel[i] = JVel[i];
         }
+        model->setJointVelocities(joint_vel);
+    }
+
+    Eigen::Displacementd posEndEffMes;
+    RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(X);
+    if(cartPos_fs==RTT::NewData){
+        double x = (double)X.position.x;
+        double y = (double)X.position.y;
+        double z = (double)X.position.z;
+        double qx = (double)X.quaternion.x;
+        double qy = (double)X.quaternion.y;
+        double qz = (double)X.quaternion.z;
+        double qw = (double)X.quaternion.w;
+        posEndEffMes.x()=x;
+        posEndEffMes.y()=y;
+        posEndEffMes.z()=z;
+        posEndEffMes.qx()=qx;
+        posEndEffMes.qy()=qy;
+        posEndEffMes.qz()=qz;
+        posEndEffMes.qw()=qw;
     }
 }
 

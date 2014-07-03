@@ -19,9 +19,10 @@ link_directories(
 # Creates a component library 
 # and installs in the directory lib/orocos/
 #	
-orocos_library(kukafixed kukafixed.cpp)
+orocos_library(ModelKuka kukafixed.cpp)
 orocos_component(KukaModelDemoRTNET kukaModelDemo-rtnetcomponent.cpp) # ...you may add multiple source files.
-target_link_libraries(KukaModelDemoRTNET kukafixed)
+target_link_libraries(ModelKuka ${PC_ORC_FRAMEWORK_LIBRARIES})
+target_link_libraries(KukaModelDemoRTNET ModelKuka)
 #
 # You may add multiple orocos_component statements.
 

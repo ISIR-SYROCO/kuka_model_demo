@@ -50,10 +50,10 @@ void KukaModelDemoRTNET::updateHook(){
         double x = (double)X.position.x;
         double y = (double)X.position.y;
         double z = (double)X.position.z;
-        double qx = (double)X.quaternion.x;
-        double qy = (double)X.quaternion.y;
-        double qz = (double)X.quaternion.z;
-        double qw = (double)X.quaternion.w;
+        double qx = (double)X.orientation.x;
+        double qy = (double)X.orientation.y;
+        double qz = (double)X.orientation.z;
+        double qw = (double)X.orientation.w;
         posEndEffMes.x()=x;
         posEndEffMes.y()=y;
         posEndEffMes.z()=z;

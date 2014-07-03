@@ -30,7 +30,7 @@ void KukaModelDemoRTNET::updateHook(){
         
         for(unsigned int i = 0; i < LWRDOF; i++){
             joint_pos[i] = JState[i];
-            joint_position_command[i] = JState[i];
+            //joint_position_command[i] = JState[i];
         }
         
     }

@@ -9,9 +9,9 @@
 #include <friRTNetExampleAbstract.hpp>
 #include <Eigen/Dense>
 
-class KukaSimpleDemoRTNET : public FriRTNetExampleAbstract{
+class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
     public:
-        KukaSimpleDemoRTNET(std::string const& name);
+        KukaModelDemoRTNET(std::string const& name);
 
         void updateHook();
 };

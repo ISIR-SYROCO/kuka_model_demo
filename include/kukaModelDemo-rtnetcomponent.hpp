@@ -20,8 +20,26 @@ class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
         kukafixed* model;
 
       	geometry_msgs::Pose X;
+        std::vector<double> pose_des;
+        Eigen::Displacementd posEndEffMes;
+
+        Eigen::VectorXd tau;
+        std::vector<double> joint_position_command;
+
+        double kp;
+        double kd;
+        double vmax;
+        double omegamax;
+
+        //x, y, z, rx, ry, rz
+        void setDesiredPos(std::vector<double> &pdes);
+        void initDesiredPos();
 
         void updateHook();
+
+    private:
+        void computeTranslationError(Eigen::Displacementd& delta, Eigen::Vector3d& t_err);
+        void computeOrientationError(Eigen::Displacementd& delta, Eigen::Vector3d& o_err);
 };
 
 #endif

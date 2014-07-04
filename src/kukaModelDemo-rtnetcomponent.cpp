@@ -136,7 +136,7 @@ void KukaModelDemoRTNET::initDesiredPos(){
         r.GetRPY(pose_des[3], pose_des[4], pose_des[5]);
     }
     else{
-        std::cout << "Fail to init desired pose" << std:;endl;
+        std::cout << "Fail to init desired pose" << std::endl;
     }
 
 }

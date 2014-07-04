@@ -111,7 +111,7 @@ void KukaModelDemoRTNET::setDesiredPos(std::vector<double>& pdes){
     }
 }
 
-void initDesiredPos(){
+void KukaModelDemoRTNET::initDesiredPos(){
     RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(X);
     if(cartPos_fs==RTT::NewData){
         double x = (double)X.position.x;

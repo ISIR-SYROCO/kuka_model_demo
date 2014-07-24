@@ -8,8 +8,10 @@
 #include <iostream>
 
 KukaModelDemoRTNET::KukaModelDemoRTNET(std::string const& name) : FriRTNetExampleAbstract(name){
+    this->addOperation("setJointImpedance", &KukaModelDemoRTNET::setJointImpedance, this, RTT::OwnThread);
     this->addOperation("initDesiredPos", &KukaModelDemoRTNET::initDesiredPos, this, RTT::OwnThread);
-    this->addOperation("setDesiredPos", &KukaModelDemoRTNET::setDesiredPos, this, RTT::OwnThread);
+    this->addOperation("setXcons", &KukaModelDemoRTNET::setDesiredPos, this, RTT::OwnThread);
+    this->addOperation("setGains", &KukaModelDemoRTNET::setGains, this, RTT::OwnThread);
     model = new kukafixed("kuka");
     pose_des.resize(6);
     kp = 1;
@@ -17,6 +19,18 @@ KukaModelDemoRTNET::KukaModelDemoRTNET(std::string const& name) : FriRTNetExampl
     vmax = 0.1;
     tau.resize(LWRDOF);
 	joint_position_command.assign(LWRDOF, 0.0);
+}
+
+bool KukaModelDemoRTNET::configureHook(){
+    setPeer("lwr");
+    //initialize the arrays that will be send to KRL
+    for(int i=0; i<16; ++i){
+        fri_to_krl.intData[i]=0;
+        fri_to_krl.realData[i]=0.0;
+    }
+
+    connectPorts();	
+    return true;
 }
 
 void KukaModelDemoRTNET::updateHook(){
@@ -39,13 +53,14 @@ void KukaModelDemoRTNET::updateHook(){
         
         for(unsigned int i = 0; i < LWRDOF; i++){
             joint_pos[i] = JState[i];
+            joint_position_command[i] = JState[i];
         }
         model->setJointPositions(joint_pos);
         
     }
     
-    if(joint_vel_fs == RTT::NewData){
-        Eigen::VectorXd joint_vel(LWRDOF);
+    Eigen::VectorXd joint_vel(LWRDOF);
+    if(joint_vel_fs == RTT::NewData){    
         for(unsigned int i = 0; i < LWRDOF; i++){
             joint_vel[i] = JVel[i];
         }
@@ -79,6 +94,7 @@ void KukaModelDemoRTNET::updateHook(){
 
     Eigen::Displacementd delta;
     delta = posEndEffMes.inverse() * posEndEffDes;
+    std::cout << "Delta " << delta.getTranslation() << std::endl;
     Eigen::Vector3d t_err;
     computeTranslationError(delta, t_err);
 
@@ -88,8 +104,10 @@ void KukaModelDemoRTNET::updateHook(){
 	J = model->getSegmentJacobian(7).block(3,0, 3,7);
 
     Eigen::Vector3d f = kp * t_err;
+    std::cout << "Error " << t_err.transpose() << std::endl;
     Eigen::VectorXd tau(LWRDOF);
-    tau = J.transpose() * f;
+    tau = J.transpose() * f - kd * joint_vel;
+    std::cout << "Tau " << tau.transpose() << std::endl;
     
     //Send tau
     if (fri_cmd_mode){
@@ -106,8 +124,11 @@ void KukaModelDemoRTNET::updateHook(){
 }
 
 void KukaModelDemoRTNET::setDesiredPos(std::vector<double>& pdes){
-    for(unsigned int i = 0; i < 6; i++){
+    for(unsigned int i = 0; i < 3; i++){
         pose_des[i] = pdes[i];
+    }
+    for(unsigned int i = 3; i < 6; i++){
+        pose_des[i] = 0.0;
     }
 }
 
@@ -144,14 +165,40 @@ void KukaModelDemoRTNET::initDesiredPos(){
 void KukaModelDemoRTNET::computeTranslationError(Eigen::Displacementd& delta, Eigen::Vector3d& t_err){
     double t = getPeriod();
     t_err = delta.getTranslation();
-    if (t_err.norm() > vmax*t){
-        t_err.normalize();
-        t_err = vmax*t * t_err;
+    std::cout << "t norm " << t_err.norm() << " t : " << t << " vmax " << vmax << std::endl;
+    if (t_err.norm() > 0.1){
+        //t_err.normalize();
+        t_err = t_err * vmax * t / t_err.norm();
     }
     return;
 }
 
 void KukaModelDemoRTNET::computeOrientationError(Eigen::Displacementd& delta, Eigen::Vector3d& o_err){
+}
+
+void KukaModelDemoRTNET::setGains(double KP, double KD){
+	kp=KP;
+	kd=KD;
+}
+
+void KukaModelDemoRTNET::setJointImpedance(std::vector<double> &stiffness, std::vector<double> &damping){
+	if(stiffness.size() != LWRDOF || damping.size() != LWRDOF){
+		std::cout << "Wrong vector size, should be " << LWRDOF << ", " << LWRDOF << std::endl;
+		return;
+	}else{
+		lwr_fri::FriJointImpedance joint_impedance_command;
+		for(unsigned int i = 0; i < LWRDOF; i++){
+			joint_impedance_command.stiffness[i] = stiffness[i];
+			joint_impedance_command.damping[i] = damping[i];
+		}
+
+		oport_joint_impedance.write(joint_impedance_command);
+	}
+}
+
+void KukaModelDemoRTNET::connectPorts(){
+	connectOJointPosition();
+	connectOJointTorque();
 }
 
 /*

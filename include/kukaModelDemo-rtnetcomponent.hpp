@@ -33,8 +33,13 @@ class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
 
         //x, y, z, rx, ry, rz
         void setDesiredPos(std::vector<double> &pdes);
+	void setJointImpedance(std::vector<double> &stiffness, std::vector<double> &damping);
         void initDesiredPos();
+	void setGains(double KP, double KD);
 
+	void connectPorts();
+
+	bool configureHook();
         void updateHook();
 
     private:

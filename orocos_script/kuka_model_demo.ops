@@ -2,7 +2,7 @@
 
 import("kuka_model_demo")
 
-KukaDemo.stop
+KukaDemo.friStop
 unloadComponent("KukaDemo")
 
 loadComponent("KukaDemo","KukaModelDemoRTNET")
@@ -20,8 +20,6 @@ cp.lock_policy = LOCKED
 
 
 //Port connection
-connect("KukaDemo.JointPositions_o", "lwr.desJntPos", cp)
-connect("KukaDemo.JointTorques_o", "lwr.desAddJntTrq", cp)
 connect("KukaDemo.desJntImpedance_o", "lwr.desJntImpedance", cp)
 
 
@@ -38,7 +36,7 @@ KukaDemo.configure
 lwr.control_mode=7
 
 
-KukaDemo.setControlStrategy(7)
-KukaDemo.start
+//KukaDemo.setControlStrategy(7)
+//KukaDemo.start
 
 

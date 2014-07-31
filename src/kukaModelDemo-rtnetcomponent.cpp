@@ -196,6 +196,21 @@ void KukaModelDemoRTNET::setJointImpedance(std::vector<double> &stiffness, std::
 	}
 }
 
+std::vector<double> KukaModelDemoRTNET::getCartPos(){
+    std::vector<double> cart_pos(12);
+    cart_pos[0] = posEndEffMes.x();
+    cart_pos[1] = posEndEffMes.y();
+    cart_pos[2] = posEndEffMes.z();
+    Eigen::MatrixXd cart_pos_mat(4,4);
+    cart_pos_mat = posEndEffMes.toHomogeneousMatrix();
+    for(int i=0; i<3; ++i){
+        for(int j=0; j<3; ++j){
+            cart_pos[3+3*i+j] = cart_pos_mat(i,j);
+        }
+    }
+    return cart_pos;
+}
+
 void KukaModelDemoRTNET::connectPorts(){
 	connectOJointPosition();
 	connectOJointTorque();

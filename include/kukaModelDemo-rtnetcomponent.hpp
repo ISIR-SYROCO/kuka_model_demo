@@ -19,7 +19,7 @@ class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
         KukaModelDemoRTNET(std::string const& name);
         kukafixed* model;
 
-      	geometry_msgs::Pose X;
+        geometry_msgs::Pose X;
         std::vector<double> pose_des;
         Eigen::Displacementd posEndEffMes;
 
@@ -33,13 +33,15 @@ class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
 
         //x, y, z, rx, ry, rz
         void setDesiredPos(std::vector<double> &pdes);
-	void setJointImpedance(std::vector<double> &stiffness, std::vector<double> &damping);
+        void setJointImpedance(std::vector<double> &stiffness, std::vector<double> &damping);
         void initDesiredPos();
-	void setGains(double KP, double KD);
+        void setGains(double KP, double KD);
 
-	void connectPorts();
+        std::vector<double> getCartPos();
 
-	bool configureHook();
+        void connectPorts();
+
+        bool configureHook();
         void updateHook();
 
     private:

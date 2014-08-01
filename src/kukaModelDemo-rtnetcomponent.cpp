@@ -12,6 +12,7 @@ KukaModelDemoRTNET::KukaModelDemoRTNET(std::string const& name) : FriRTNetExampl
     this->addOperation("initDesiredPos", &KukaModelDemoRTNET::initDesiredPos, this, RTT::OwnThread);
     this->addOperation("setXcons", &KukaModelDemoRTNET::setDesiredPos, this, RTT::OwnThread);
     this->addOperation("setGains", &KukaModelDemoRTNET::setGains, this, RTT::OwnThread);
+    this->addOperation("getJacobianModel", &KukaModelDemoRTNET::getJacobianModel, this, RTT::OwnThread);
     model = new kukafixed("kuka");
     pose_des.resize(6);
     kp = 1;
@@ -209,6 +210,18 @@ std::vector<double> KukaModelDemoRTNET::getCartPos(){
         }
     }
     return cart_pos;
+}
+
+std::vector<double> KukaModelDemoRTNET::getJacobianModel(int segmentIndex){
+    std::vector<double> jac_model(42);
+    Eigen::MatrixXd J(6, 7);
+    J = model->getSegmentJacobian(segmentIndex);
+    for(int i=0; i<6; ++i){
+        for(int j=0; j<7; ++j){
+            jac_model[6*i+j] = J(i, j);
+        }
+    }
+
 }
 
 void KukaModelDemoRTNET::connectPorts(){

@@ -21,6 +21,7 @@ class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
 
         geometry_msgs::Pose X;
         std::vector<double> pose_des;
+        std::vector<double> current_qmes;
         Eigen::Displacementd posEndEffMes;
 
         Eigen::VectorXd tau;
@@ -38,6 +39,7 @@ class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
         void setGains(double KP, double KD);
 
         std::vector<double> getCartPos();
+        std::vector<double> getJacobianModel(int segmentIndex);
 
         void connectPorts();
 

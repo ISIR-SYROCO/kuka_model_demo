@@ -214,11 +214,11 @@ std::vector<double> KukaModelDemoRTNET::getCartPos(){
 
 std::vector<double> KukaModelDemoRTNET::getJacobianModel(int segmentIndex){
     std::vector<double> jac_model(42);
-    Eigen::MatrixXd J(6, 7);
-    J = model->getSegmentJacobian(segmentIndex);
+    model.computeJacobian();
+    model.jacobian.changeBase(model.getSegmentPosition(segmentIndex).M.Inverse()); 
     for(int i=0; i<6; ++i){
         for(int j=0; j<7; ++j){
-            jac_model[6*i+j] = J(i, j);
+            jac_model[6*i+j] = model.jacobian.data(i, j);
         }
     }
 

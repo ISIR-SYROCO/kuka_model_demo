@@ -2,9 +2,11 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PC_EIGEN_INCLUDE_DIRS}
     ${PC_ORC_FRAMEWORK_INCLUDE_DIRS}
+    ${PC_KUKAKDL_INCLUDE_DIRS}
 )
 
 link_directories(
+    ${PC_KUKAKDL_LIBRARY_DIRS}
     ${PC_ORC_FRAMEWORK_LIBRARY_DIRS}
 )
 
@@ -19,10 +21,10 @@ link_directories(
 # Creates a component library 
 # and installs in the directory lib/orocos/
 #	
-orocos_library(ModelKuka kukafixed.cpp)
+#orocos_library(ModelKuka kukafixed.cpp)
 orocos_component(KukaModelDemoRTNET kukaModelDemo-rtnetcomponent.cpp) # ...you may add multiple source files.
-target_link_libraries(ModelKuka ${PC_ORC_FRAMEWORK_LIBRARIES})
-target_link_libraries(KukaModelDemoRTNET ModelKuka)
+#target_link_libraries(ModelKuka ${PC_ORC_FRAMEWORK_LIBRARIES})
+target_link_libraries(KukaModelDemoRTNET ${PC_KUKAKDL_LIBRARIES})
 #
 # You may add multiple orocos_component statements.
 

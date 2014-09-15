@@ -7,8 +7,8 @@
 #define KUKA_MODEL_DEMO_RTNET_COMPONENT_HPP
 
 #include <friRTNetExampleAbstract.hpp>
-#include "kukafixed.h"
-#include <Eigen/Dense>
+
+#include <kukakdl/kukakdl.hpp>
 
 #include <orc/control/Feature.h>
 #include <orc/control/ControlFrame.h>
@@ -17,7 +17,7 @@
 class KukaModelDemoRTNET : public FriRTNetExampleAbstract{
     public:
         KukaModelDemoRTNET(std::string const& name);
-        kukafixed* model;
+        KukaKDL model;
 
         geometry_msgs::Pose X;
         std::vector<double> pose_des;

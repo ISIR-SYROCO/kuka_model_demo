@@ -13,7 +13,7 @@ KukaModelDemoRTNET::KukaModelDemoRTNET(std::string const& name) : FriRTNetExampl
     this->addOperation("setXcons", &KukaModelDemoRTNET::setDesiredPos, this, RTT::OwnThread);
     this->addOperation("setGains", &KukaModelDemoRTNET::setGains, this, RTT::OwnThread);
     this->addOperation("getJacobianModel", &KukaModelDemoRTNET::getJacobianModel, this, RTT::OwnThread);
-    model = new kukafixed("kuka");
+
     pose_des.resize(6);
     kp = 1;
     kd = 1;
@@ -50,23 +50,21 @@ void KukaModelDemoRTNET::updateHook(){
     RTT::FlowStatus joint_vel_fs = iport_msr_joint_vel.read(JVel);
 
     if(joint_state_fs == RTT::NewData){        
-        Eigen::VectorXd joint_pos(LWRDOF);
         
         for(unsigned int i = 0; i < LWRDOF; i++){
-            joint_pos[i] = JState[i];
             joint_position_command[i] = JState[i];
         }
-        model->setJointPositions(joint_pos);
+        model.setJointPosition(JState);
         
     }
     
-    Eigen::VectorXd joint_vel(LWRDOF);
-    if(joint_vel_fs == RTT::NewData){    
-        for(unsigned int i = 0; i < LWRDOF; i++){
-            joint_vel[i] = JVel[i];
-        }
-        model->setJointVelocities(joint_vel);
-    }
+    //Eigen::VectorXd joint_vel(LWRDOF);
+    //if(joint_vel_fs == RTT::NewData){    
+    //    for(unsigned int i = 0; i < LWRDOF; i++){
+    //        joint_vel[i] = JVel[i];
+    //    }
+    //    model->setJointVelocities(joint_vel);
+    //}
 
     RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(X);
     if(cartPos_fs==RTT::NewData){
@@ -102,7 +100,9 @@ void KukaModelDemoRTNET::updateHook(){
     Eigen::MatrixXd J(3,7);
     //block(start_row, start_col, block_row, block_col)
     //only translation component (last 3 rows)
-	J = model->getSegmentJacobian(7).block(3,0, 3,7);
+    model.computeJacobian();
+    model.jacobian.changeBase(model.getSegmentPosition(8).M.Inverse()); 
+	J = model.jacobian.data.block(3,0, 3,7);
 
     Eigen::Vector3d f = kp * t_err;
     std::cout << "Error " << t_err.transpose() << std::endl;

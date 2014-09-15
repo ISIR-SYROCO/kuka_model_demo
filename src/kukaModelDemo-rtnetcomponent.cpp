@@ -55,7 +55,6 @@ void KukaModelDemoRTNET::updateHook(){
             joint_position_command[i] = JState[i];
         }
         model.setJointPosition(JState);
-        
     }
     
     Eigen::VectorXd joint_vel(LWRDOF);
@@ -118,9 +117,9 @@ void KukaModelDemoRTNET::updateHook(){
             for(unsigned int i=0; i<LWRDOF; ++i){
                 joint_eff_command[i] = tau[i];
             }
-            oport_add_joint_trq.write(joint_eff_command);
+            //oport_add_joint_trq.write(joint_eff_command);
         }
-        oport_joint_position.write(joint_position_command);
+        //oport_joint_position.write(joint_position_command);
     }
 }
 
@@ -214,14 +213,18 @@ std::vector<double> KukaModelDemoRTNET::getCartPos(){
 
 std::vector<double> KukaModelDemoRTNET::getJacobianModel(int segmentIndex){
     std::vector<double> jac_model(42);
+    //double q_1[] = {0.0, -0.0523626, 0.0, 1.51845, 0.0, -0.959863, 0.0};
+    //std::vector<double> q1(q_1, q_1+7);
+    //model.setJointPosition(q1);
+        
     model.computeJacobian();
     model.jacobian.changeBase(model.getSegmentPosition(segmentIndex).M.Inverse()); 
     for(int i=0; i<6; ++i){
         for(int j=0; j<7; ++j){
-            jac_model[6*i+j] = model.jacobian.data(i, j);
+            jac_model[7*i+j] = model.jacobian.data(i, j);
         }
     }
-
+    return jac_model;
 }
 
 void KukaModelDemoRTNET::connectPorts(){

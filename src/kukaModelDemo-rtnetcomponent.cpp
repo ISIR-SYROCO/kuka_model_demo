@@ -58,13 +58,13 @@ void KukaModelDemoRTNET::updateHook(){
         
     }
     
-    //Eigen::VectorXd joint_vel(LWRDOF);
-    //if(joint_vel_fs == RTT::NewData){    
-    //    for(unsigned int i = 0; i < LWRDOF; i++){
-    //        joint_vel[i] = JVel[i];
-    //    }
+    Eigen::VectorXd joint_vel(LWRDOF);
+    if(joint_vel_fs == RTT::NewData){    
+        for(unsigned int i = 0; i < LWRDOF; i++){
+            joint_vel[i] = JVel[i];
+        }
     //    model->setJointVelocities(joint_vel);
-    //}
+    }
 
     RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(X);
     if(cartPos_fs==RTT::NewData){

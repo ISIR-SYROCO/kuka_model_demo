@@ -62,7 +62,7 @@ void KukaModelDemoRTNET::updateHook(){
         for(unsigned int i = 0; i < LWRDOF; i++){
             joint_vel[i] = JVel[i];
         }
-    //    model->setJointVelocities(joint_vel);
+        model.setJointVelocity(JVel);
     }
 
     RTT::FlowStatus cartPos_fs =  iport_cart_pos.read(X);
@@ -93,15 +93,19 @@ void KukaModelDemoRTNET::updateHook(){
     Eigen::Displacementd delta;
     delta = posEndEffMes.inverse() * posEndEffDes;
     std::cout << "Delta " << delta.getTranslation() << std::endl;
+
     Eigen::Vector3d t_err;
     computeTranslationError(delta, t_err);
+	t_err[0] = pose_des[0] - posEndEffMes.x();
+	t_err[1] = pose_des[1] - posEndEffMes.y();
+    t_err[2] = pose_des[2] - posEndEffMes.z();
 
     Eigen::MatrixXd J(3,7);
     //block(start_row, start_col, block_row, block_col)
-    //only translation component (last 3 rows)
-    model.computeJacobian();
-    model.jacobian.changeBase(model.getSegmentPosition(8).M.Inverse()); 
-	J = model.jacobian.data.block(3,0, 3,7);
+    //only translation component (first 3 rows)
+    //model.computeJacobian();
+    //model.jacobian.changeBase(model.getSegmentPosition(8).M.Inverse()); 
+    J = model.getSegmentJacobian(7).data.block(0,0, 3,7);
 
     Eigen::Vector3d f = kp * t_err;
     std::cout << "Error " << t_err.transpose() << std::endl;
@@ -110,6 +114,7 @@ void KukaModelDemoRTNET::updateHook(){
     std::cout << "Tau " << tau.transpose() << std::endl;
     
     //Send tau
+	
     if (fri_cmd_mode){
         if(requiresControlMode(30)){
             std::vector<double> joint_eff_command;
@@ -117,10 +122,11 @@ void KukaModelDemoRTNET::updateHook(){
             for(unsigned int i=0; i<LWRDOF; ++i){
                 joint_eff_command[i] = tau[i];
             }
-            //oport_add_joint_trq.write(joint_eff_command);
+            oport_add_joint_trq.write(joint_eff_command);
         }
-        //oport_joint_position.write(joint_position_command);
+        oport_joint_position.write(joint_position_command);
     }
+	
 }
 
 void KukaModelDemoRTNET::setDesiredPos(std::vector<double>& pdes){
@@ -165,10 +171,10 @@ void KukaModelDemoRTNET::initDesiredPos(){
 void KukaModelDemoRTNET::computeTranslationError(Eigen::Displacementd& delta, Eigen::Vector3d& t_err){
     double t = getPeriod();
     t_err = delta.getTranslation();
-    std::cout << "t norm " << t_err.norm() << " t : " << t << " vmax " << vmax << std::endl;
+    //std::cout << "t norm " << t_err.norm() << " t : " << t << " vmax " << vmax << std::endl;
     if (t_err.norm() > 0.1){
         //t_err.normalize();
-        t_err = t_err * vmax * t / t_err.norm();
+        t_err = t_err * vmax  / t_err.norm();
     }
     return;
 }
@@ -217,11 +223,10 @@ std::vector<double> KukaModelDemoRTNET::getJacobianModel(int segmentIndex){
     //std::vector<double> q1(q_1, q_1+7);
     //model.setJointPosition(q1);
         
-    model.computeJacobian();
-    model.jacobian.changeBase(model.getSegmentPosition(segmentIndex).M.Inverse()); 
+    KDL::Jacobian jac = model.getSegmentJacobian(segmentIndex);
     for(int i=0; i<6; ++i){
         for(int j=0; j<7; ++j){
-            jac_model[7*i+j] = model.jacobian.data(i, j);
+            jac_model[7*i+j] = jac.data(i, j);
         }
     }
     return jac_model;
